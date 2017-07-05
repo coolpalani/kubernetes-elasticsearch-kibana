@@ -1,23 +1,16 @@
-apiVersion: v1
-kind: ReplicationController
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
   name: kibana
-  namespace: default
   labels:
-    component: elk
-    role: kibana
+    component: kibana
 spec:
   replicas: 1
-  selector:
-    component: elk
-    role: kibana
   template:
     metadata:
       labels:
-        component: elk
-        role: kibana
+        component: kibana
     spec:
-      serviceAccount: elk
       containers:
       - name: kibana
         image: docker.elastic.co/kibana/kibana:5.4.1

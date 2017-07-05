@@ -4,11 +4,9 @@ metadata:
   name: elasticsearch-discovery
   labels:
     component: elasticsearch
-    role: master
 spec:
   selector:
     component: elasticsearch
-    role: master
   ports:
   - name: transport
     port: 9300
