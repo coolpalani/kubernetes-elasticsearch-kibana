@@ -1,16 +1,18 @@
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  name: elasticsearch
+  name: es-data
   labels:
     component: elasticsearch
+    role: data
 spec:
-  serviceName: elasticsearch
-  replicas: 2
+  serviceName: elasticsearch-data
+  replicas: 3
   template:
     metadata:
       labels:
         component: elasticsearch
+        role: data
       annotations:
         pod.beta.kubernetes.io/init-containers: '[
           {
@@ -25,14 +27,13 @@ spec:
         ]'
     spec:
       containers:
-      - name: elasticsearch
+      - name: es-data
         securityContext:
-          privileged: false
+          privileged: true
           capabilities:
             add:
               - IPC_LOCK
-              - SYS_RESOURCE
-        image: asia.gcr.io/remotework-171605/elasticsearch-with-kuromoji:latest
+        image: quay.io/pires/docker-elasticsearch-kubernetes:5.4.0
         imagePullPolicy: Always
         env:
         - name: NAMESPACE
@@ -45,32 +46,15 @@ spec:
               fieldPath: metadata.name
         - name: "CLUSTER_NAME"
           value: "myesdb"
-        - name: "NUMBER_OF_MASTERS"
-          value: "1"
         - name: NODE_MASTER
-          value: "true"
+          value: "false"
         - name: NODE_INGEST
           value: "false"
-        - name: NODE_DATA
-          value: "true"
         - name: HTTP_ENABLE
-          value: "true"
+          value: "false"
         - name: "ES_JAVA_OPTS"
           value: "-Xms256m -Xmx256m"
-        - name: XPACK_MONITORING_ENABLED
-          value: "false"
-        - name: XPACK_SECURITY_ENABLED
-          value: "false"
-        - name: XPACK_GRAPH_ENABLED
-          value: "false"
-        - name: XPACK_ML_ENABLED
-          value: "false"
-        - name: XPACK_REPORTING_ENABLED
-          value: "false"
         ports:
-        - containerPort: 9200
-          name: http
-          protocol: TCP
         - containerPort: 9300
           name: transport
           protocol: TCP
@@ -78,12 +62,12 @@ spec:
         - name: storage
           mountPath: /data
   volumeClaimTemplates:
-    - metadata:
-        name: storage
-        annotations:
-          volume.beta.kubernetes.io/storage-class: standard
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-          requests:
-            storage: 12Gi
+  - metadata:
+      name: storage
+      annotations:
+        volume.beta.kubernetes.io/storage-class: standard
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 12Gi
