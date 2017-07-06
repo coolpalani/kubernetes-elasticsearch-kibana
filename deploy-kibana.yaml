@@ -20,7 +20,10 @@ spec:
         - name: ELASTICSEARCH_USER
           value: "elastic"
         - name: ELASTICSEARCH_PASSWORD
-          value: "changeme"
+          valueFrom:
+            secretKeyRef:
+              name: elasticsearch-authentication
+              key: password
         - name: KUBERNETES_TRUST_CERT
           value: "true"
         - name: XPACK_MONITORING_ENABLED
